@@ -1,0 +1,104 @@
+* {
+  font-family: 'none';
+  padding: 0;
+  margin: 0;
+  scroll-behavior: smooth;
+}
+
+p {
+  color: gray;
+}
+
+a {
+  text-decoration: none;
+  color: rgb(49, 45, 45);
+  font-size: medium;
+}
+
+#logo {
+  max-width: 100%;
+  height: auto;
+  width: 80px;
+}
+
+.collapse {
+  justify-content: center;
+}
+
+.heading {
+  line-height: 50px;
+}
+
+/* loer section */
+#lower_sec_img {
+  max-width: 100%;
+  height: auto;
+  width: 500px;
+}
+
+/* 3rd section.....select categories */
+.cat_img {
+  height: 170px;
+  width: 170px;
+  border-radius: 100px;
+}
+.nav-link {
+  color: white
+}
+
+.login {
+  background: none;
+  border: none;
+}
+.logOut {
+  background: none;
+  border: none;
+}
+
+
+
+#blog-container {
+  max-width: 800px;
+  margin: 20px auto;
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 8px;
+}
+
+.navbar-nav .nav-link.active,
+.navbar-nav .nav-link.show {
+  color: white
+}
+.blog {
+  border-bottom: 1px solid #ddd;
+  padding: 20px 0;
+}
+
+.blog:last-child {
+  border-bottom: none;
+}
+
+.blog h3 {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.blog p {
+  font-size: 1rem;
+  color: #555;
+}
+
+.blog small {
+  font-size: 0.9rem;
+  color: #777;
+}
+
+/* recent blogs */
+.recentCards{
+  width: 400px;
+  height: auto;
+}
+.recentBlogsImg{
+  /* max-width: 100%; */
+  height: auto;
+}

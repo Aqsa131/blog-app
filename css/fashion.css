@@ -1,0 +1,16 @@
+#fashionImg{
+    max-width: 100%;
+    height: auto;
+}
+.bookmark-icon {
+    font-size: 20px;
+    cursor: pointer;
+    color: gray;
+}
+.bookmark-icon:hover {
+    color: black;
+}
+.bi-bookmark-fill{
+    color: black;
+
+}

@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Blog</title>
+    <style>
+        body {
+            max-width: 500px;
+            margin: 20px auto;
+            text-align: center;
+        }
+
+        input, textarea {
+            width: 100%;
+            margin: 10px 0;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        #currentBlogImage, #newImagePreview {
+            width: 150px;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 5px;
+            margin-top: 10px;
+            display: block;
+        }
+
+        button {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+
+        #updateBlogBtn {
+            background-color: rebeccapurple;;
+            color: white;
+        }
+
+        .cancelBtn {
+            background-color:red;
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h3>Edit Blog</h3>
+
+    <input style="border-radius: 0px;" type="hidden" id="editBlogID">
+
+    <input style="border-radius: 0px;" type="text" id="editTitle" placeholder="Edit Blog Title">
+    
+    <textarea style="border-radius: 0px;" id="editContent" placeholder="Edit Blog Content"></textarea>
+
+    <!-- Image Upload Section -->
+    <label>Current Image:</label>
+    <img id="currentBlogImage" src="" alt="Current Blog Image">
+
+    <input style="border-radius: 0px;" type="file" id="editBlogImage" accept="image/*">
+    <img id="newImagePreview" src="" alt="New Image Preview" style="display: none;">
+
+    <button id="updateBlogBtn">Update</button>
+    <button class="cancelBtn" onclick="window.location.href='/public/index.html'">Cancel</button>
+
+    <script type="module">
+        import { getAuth, onAuthStateChanged, doc, getDoc, updateDoc, db, serverTimestamp } from "../../frebase.config.js";
+
+        const auth = getAuth();
+        const urlParams = new URLSearchParams(window.location.search);
+        const blogID = urlParams.get("id");
+
+        const titleElement = document.getElementById("editTitle");
+        const contentElement = document.getElementById("editContent");
+        const blogIDElement = document.getElementById("editBlogID");
+        const currentImageElement = document.getElementById("currentBlogImage");
+        const newImagePreviewElement = document.getElementById("newImagePreview");
+        const imageInput = document.getElementById("editBlogImage");
+
+        // Blog Load Function
+        const loadBlogData = async () => {
+            if (!blogID) {
+                console.error("No Blog ID found in URL!");
+                return;
+            }
+
+            const blogRef = doc(db, "posts", blogID);
+            const blogSnap = await getDoc(blogRef);
+
+            if (blogSnap.exists()) {
+                const blogData = blogSnap.data();
+                
+                titleElement.value = blogData.title;
+                contentElement.value = blogData.blog;
+                blogIDElement.value = blogID;
+
+                // Show Existing Image
+                if (blogData.imageUrl) {
+                    currentImageElement.src = blogData.imageUrl;
+                }
+            } else {
+                console.error("No blog found!");
+            }
+        };
+
+        // Call Load Function
+        loadBlogData();
+
+        // Image Preview
+        imageInput.addEventListener("change", function (event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    newImagePreviewElement.src = e.target.result;
+                    newImagePreviewElement.style.display = "block";
+                };
+                reader.readAsDataURL(file);
+            } else {
+                newImagePreviewElement.style.display = "none";
+            }
+        });
+
+        // Update Blog Function
+        const updateBlog = async () => {
+            const updatedTitle = titleElement.value;
+            const updatedContent = contentElement.value;
+            let updatedImageUrl = currentImageElement.src;
+
+            // If New Image Uploaded, Upload to Cloudinary
+            const newImageFile = imageInput.files[0];
+            if (newImageFile) {
+                updatedImageUrl = await uploadImageToCloudinary(newImageFile);
+            }
+
+            try {
+                const blogRef = doc(db, "posts", blogID);
+                await updateDoc(blogRef, {
+                    title: updatedTitle,
+                    blog: updatedContent,
+                    imageUrl: updatedImageUrl,
+                    updatedAt: serverTimestamp(),
+                });
+
+                alert("Blog updated successfully!");
+                window.location.href = "/public/html/myBlogs.html"; 
+            } catch (error) {
+                console.error("Error updating blog:", error);
+            }
+        };
+
+        // Update Button Click
+        document.getElementById("updateBlogBtn").addEventListener("click", updateBlog);
+
+        // Cloudinary Image Upload Function
+        async function uploadImageToCloudinary(file) {
+            if (!file) {
+                console.error("No file selected for upload!");
+                return null;
+            }
+
+            const formData = new FormData();
+            formData.append("file", file);
+            formData.append("upload_preset", "firebaseBlogs"); 
+
+            try {
+                const response = await fetch("https://api.cloudinary.com/v1_1/dd0hhsmim/image/upload", {
+                    method: "POST",
+                    body: formData,
+                });
+
+                const data = await response.json();
+
+                if (data.error) {
+                    console.error("Cloudinary Error:", data.error.message);
+                    return null;
+                }
+
+                return data.secure_url;
+            } catch (error) {
+                console.error("Cloudinary Upload Error:", error);
+                return null;
+            }
+        }
+    </script>
+
+</body>
+
+</html>
